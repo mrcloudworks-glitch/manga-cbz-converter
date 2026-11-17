@@ -29,6 +29,9 @@ The app opens at <http://127.0.0.1:5000>. Keep the terminal window open while us
 - JPEG, WebP, or lossless PNG output
 - Adjustable quality and maximum dimensions
 - Optional automatic double-page spread splitting
+- Webtoon mode slices long vertical strips into screen-sized pages without stretching
+- Built-in screen presets for Kindle, Kobo, PocketBook, BOOX, and reMarkable readers
+- Custom screen width and height for any other e-reader
 - Right-to-left manga and left-to-right comic ordering
 - Embedded `ComicInfo.xml` metadata
 - 2 GB combined upload limit

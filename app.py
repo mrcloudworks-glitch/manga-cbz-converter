@@ -89,10 +89,34 @@ def comic_info(form) -> bytes:
     return ET.tostring(root, encoding="utf-8", xml_declaration=True)
 
 
+def _webtoon_pages(image: Image.Image, width: int, height: int) -> list[Image.Image]:
+    """Cut a vertical strip into screen-shaped pages, padding the last page."""
+    if not width or not height:
+        raise ValueError("Choose an e-reader preset or enter a width and height for Webtoon mode.")
+    # Crop in source pixels before resizing so no part of the artwork is stretched.
+    slice_height = max(1, round(image.width * height / width))
+    pages: list[Image.Image] = []
+    for top in range(0, image.height, slice_height):
+        crop = image.crop((0, top, image.width, min(top + slice_height, image.height)))
+        crop.thumbnail((width, height), Image.Resampling.LANCZOS)
+        canvas = Image.new("RGB", (width, height), "white")
+        # Keep the reading flow anchored at the top; center horizontally if needed.
+        canvas.paste(crop, ((width - crop.width) // 2, 0))
+        crop.close()
+        pages.append(canvas)
+    image.close()
+    return pages
+
+
 def process_image(path: Path, form) -> list[Image.Image]:
     with Image.open(path) as opened:
         opened.seek(0)
         image = ImageOps.exif_transpose(opened).convert("RGB")
+
+    max_width = max(0, int(form.get("max_width", "0") or 0))
+    max_height = max(0, int(form.get("max_height", "0") or 0))
+    if form.get("layout") == "webtoon":
+        return _webtoon_pages(image, max_width, max_height)
 
     pages = [image]
     split = form.get("split_spreads") == "on"
@@ -104,8 +128,6 @@ def process_image(path: Path, form) -> list[Image.Image]:
         pages = [right, left] if form.get("direction") == "rtl" else [left, right]
         image.close()
 
-    max_width = int(form.get("max_width", "0") or 0)
-    max_height = int(form.get("max_height", "0") or 0)
     if max_width or max_height:
         bound = (max_width or 100000, max_height or 100000)
         for page in pages:
