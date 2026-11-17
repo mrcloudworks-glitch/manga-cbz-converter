@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PanelForge — Local Manga to CBZ Converter</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header><a class="brand" href="/"><span>PF</span> PanelForge</a><div class="offline">● 100% local</div></header>
+<main>
+  <section class="hero"><p class="eyebrow">PRIVATE · FAST · OFFLINE</p><h1>Turn your manga into<br><em>beautiful CBZ files.</em></h1><p>Combine images, PDFs, ZIPs, or existing CBZ files. Everything stays on your computer.</p></section>
+  <form id="converter" action="/convert" method="post" enctype="multipart/form-data">
+    <section class="card upload-card">
+      <label id="dropzone" class="dropzone"><input id="files" type="file" name="files" multiple accept="image/*,.pdf,.zip,.cbz"><span class="upload-icon">⇧</span><strong>Drop your pages here</strong><small>or click to browse · JPG, PNG, WEBP, PDF, ZIP, CBZ</small></label>
+      <div id="file-list" class="file-list"></div>
+    </section>
+    <div class="layout">
+      <section class="card options"><div class="section-title"><b>Conversion settings</b><span>Fine-tune your comic</span></div>
+        <div class="grid">
+          <label>Output name<input name="output_name" value="my-manga" maxlength="120"></label>
+          <label>Image format<select name="format"><option value="jpeg">JPEG — smallest</option><option value="webp">WebP — efficient</option><option value="png">PNG — lossless</option></select></label>
+          <label>Reading direction<select name="direction"><option value="rtl">Right to left (manga)</option><option value="ltr">Left to right</option></select></label>
+          <label>Image quality<div class="range-row"><input id="quality" type="range" name="quality" min="40" max="100" value="88"><output id="quality-out">88%</output></div></label>
+          <label>Maximum width <small>(0 = original)</small><input type="number" name="max_width" min="0" value="0"></label>
+          <label>Maximum height <small>(0 = original)</small><input type="number" name="max_height" min="0" value="0"></label>
+        </div>
+        <label class="toggle"><input type="checkbox" name="split_spreads"><i></i><span><b>Split double-page spreads</b><small>Landscape pages become two correctly ordered pages</small></span></label>
+        <input type="hidden" name="spread_ratio" value="1.35">
+      </section>
+      <section class="card metadata"><div class="section-title"><b>Comic metadata</b><span>Optional ComicInfo.xml</span></div>
+        <label>Title<input name="title" placeholder="Chapter title"></label><div class="two"><label>Series<input name="series" placeholder="Series name"></label><label>Number<input name="number" placeholder="01"></label></div>
+        <label>Writer<input name="writer" placeholder="Author"></label><label>Genre<input name="genre" placeholder="Action, fantasy"></label><label>Summary<textarea name="summary" rows="3" placeholder="A short description…"></textarea></label>
+      </section>
+    </div>
+    <button id="submit" class="convert" type="submit"><span>Build my CBZ</span><small>Files are processed only on this device</small></button>
+    <div id="status" role="status"></div>
+  </form>
+</main>
+<footer>PanelForge Local <span>·</span> Your pages never leave your computer.</footer>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>
