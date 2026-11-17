@@ -40,6 +40,26 @@ class ConverterTests(unittest.TestCase):
         }, content_type='multipart/form-data')
         self.assertEqual(response.headers['X-Page-Count'], '2')
 
+    def test_webtoon_is_sliced_for_device(self):
+        response = self.client.post('/convert', data={
+            'files': (image_bytes((600, 2000)), 'strip.png'),
+            'format': 'png', 'layout': 'webtoon',
+            'max_width': '600', 'max_height': '800'
+        }, content_type='multipart/form-data')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['X-Page-Count'], '3')
+        with zipfile.ZipFile(io.BytesIO(response.data)) as archive:
+            with Image.open(io.BytesIO(archive.read('000003.png'))) as page:
+                self.assertEqual(page.size, (600, 800))
+
+    def test_webtoon_requires_screen_size(self):
+        response = self.client.post('/convert', data={
+            'files': (image_bytes((100, 500)), 'strip.png'),
+            'layout': 'webtoon', 'format': 'jpeg'
+        }, content_type='multipart/form-data')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b'Choose an e-reader preset', response.data)
+
     def test_rejects_empty_request(self):
         response = self.client.post('/convert')
         self.assertEqual(response.status_code, 400)
